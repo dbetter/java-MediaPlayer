@@ -1,5 +1,9 @@
 package mediaplayer;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -8,6 +12,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaPlayer.Status;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -29,9 +34,9 @@ public class MediaBar extends HBox {
     
     MediaPlayer player;
     
-    public MediaBar(MediaPlayer player) {
-        this.player = player;
-        
+    public MediaBar(MediaPlayer play) {
+        this.player = play;
+       
         setAlignment(Pos.CENTER);
         setPadding(new Insets(5,10,5,10));
         
@@ -47,6 +52,30 @@ public class MediaBar extends HBox {
         getChildren().add(time);
         getChildren().add(volumeSlider);
         getChildren().add(volume);
+        
+        playButton.setOnAction(new EventHandler<ActionEvent> () {
+            @Override
+            public void handle(ActionEvent e) {
+                Status status = player.getStatus();
+                if (status == Status.PLAYING){
+                    if (player.getCurrentTime().greaterThanOrEqualTo(player.getTotalDuration())){
+                        // we've reached the end of the video, so we'll play the video again (repeat) 
+                        player.seek(player.getStartTime());
+                        player.play();
+                        
+                        //another option is to shut down the player
+                        // player.stop();
+                    } else{
+                        player.pause();
+                        playButton.setText(">");
+                    }
+                } else if (status == Status.HALTED || status == Status.PAUSED || status == Status.STOPPED){
+                    playButton.setText("||");
+                    player.play();
+                    
+                }
+            }
+        });
     }
     
     
