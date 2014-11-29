@@ -1,5 +1,7 @@
 package mediaplayer;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -9,6 +11,9 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.MouseDragEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.media.MediaPlayer;
@@ -75,6 +80,19 @@ public class MediaBar extends HBox {
                     
                 }
             }
+        });
+               
+        
+        // Handle volume button
+        volume.valueProperty().addListener(new InvalidationListener(){
+
+            @Override
+            public void invalidated(Observable o) {
+                if (volume.isPressed()){
+                    player.setVolume(volume.getValue()/100);
+                }
+            }
+            
         });
     }
     
