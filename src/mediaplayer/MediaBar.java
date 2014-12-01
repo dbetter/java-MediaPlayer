@@ -1,5 +1,6 @@
 package mediaplayer;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
@@ -58,6 +59,7 @@ public class MediaBar extends HBox {
         getChildren().add(volumeSlider);
         getChildren().add(volume);
         
+        // Handle "play"/"pause" button
         playButton.setOnAction(new EventHandler<ActionEvent> () {
             @Override
             public void handle(ActionEvent e) {
@@ -82,6 +84,29 @@ public class MediaBar extends HBox {
             }
         });
                
+        player.currentTimeProperty().addListener(new InvalidationListener() {
+            @Override
+            public void invalidated(Observable o) {                
+            // handle time slider
+            /* Because we've added a listener on the time property of the player,
+                each second that goes by the "updatesValues" function will be called, and hence we'll update the position of the slider
+            */
+                updateValues();
+            }
+        });
+        
+        time.valueProperty().addListener(new InvalidationListener() {
+            @Override
+            public void invalidated(Observable o) {
+                if (time.isPressed()){
+                    // multiply the entire duration with the precentege wanted (which is obtained from the time slider)
+                    player.seek(player.getMedia().getDuration().multiply(time.getValue()/100));
+                }
+            }
+        });
+        
+        
+        
         
         // Handle volume button
         volume.valueProperty().addListener(new InvalidationListener(){
@@ -96,5 +121,15 @@ public class MediaBar extends HBox {
         });
     }
     
+    protected void updateValues(){
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                time.setValue(player.getCurrentTime().toMillis()/player.getTotalDuration().toMillis()*100);
+            }
+            
+        });
+    }
+           
     
 }
